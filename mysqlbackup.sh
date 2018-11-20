@@ -28,8 +28,18 @@ full_dir='/home/mysql_backup/full_backup'
 innobackupex --user ${user} --password ${password}  --no-timestamp ${full_dir}/full-`date +%Y%m%d%H%M%S` &>/dev/null
 if [ $? -eq 0 ];then
    echo -e "\033[42;30;5m $time full_backup SUCCESS! \033[0m" 
+   last1=$(cd ${full_dir};ls |tail -1)
+   list=$(cd ${full_dir};ls |head -2)
+   num=$(cd ${full_dir};ls | head -2 |wc -l)
+   tar -cvf ${full_dir}/$last1.tar ${full_dir}/$last1
+   if [ $num -eq 2 ];then
+      for i in $list 
+      do
+        rm -rf ${full_dir}/$i
+      done
+   fi
 else
-   echo -e "\033[41;30;5m $time full_backup FiALS! \033[0m" 
+   echo -e "\033[41;30;5m $time full_backup FAILS! \033[0m" 
 fi
 }
 
@@ -44,7 +54,7 @@ else
    echo " ${increment_dir} exsits" &>/dev/null
 fi
 
-last1=$(cd ${full_dir};ls |tail -1)
+last1=$(cd ${full_dir};ls |head -1)
 last2=$(cd ${increment_dir};ls |tail -1)
 nozore=$(du -s ${increment_dir} | awk '{print $1}')
 
